@@ -1,0 +1,86 @@
+<h3>Hi <%= @user.first_name %></h3>
+<a href="/shoes">Go to All Products</a>
+<a href="/logout">Log Out</a>
+
+<h1>Sell Product</h1>
+  <form action="/shoes" method="post">
+    <p>
+      <label for="shoes">Name</label>
+      <input type="text" id="shoes" name="shoe[name]">
+    </p>
+    <p>
+      <label for="amount">Amount</label>
+      <input type="number" min="0.01" step="0.01" max="10000" placeholder="$0.00" id="amount" name="shoe[amount]">
+    </p>
+    <input type="hidden" name="shoe[user_id]" value="<%= session[:user_id] %>">
+    <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+    <input type="submit" value="Sell">
+  </form>
+
+<% if flash[:alert] %>
+  <p id="notice"><%= flash[:alert] %></p>
+  <% end %>
+</p>
+
+<h4>Your products that are not yet sold:</h4>
+<table>
+  <tr>
+    <th>Product</th>
+    <th>Date Posted</th>
+    <th>Amount</th>
+    <th>Action</th>
+  </tr>
+  <% @my_shoes.each do |m| %>
+  <tr>
+    <td><%= m.name %></td>
+    <td><%= m.created_at.strftime("%B %d, %Y") %></td>
+    <td><%= number_to_currency(m.amount, :unit => "$") %></td>
+    <td>
+      <form action="/remove/<%= m.id %>" method="post">
+        <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+        <input type="submit" value="Remove">
+      </form>
+    </td>
+  </tr>
+  <% end %>
+</table>
+
+<h4>Sales</h4>
+<table>
+  <tr>
+    <th>Product</th>
+    <th>Date Bought</th>
+    <th>Buyer</th>
+    <th>Amount</th>
+  </tr>
+  <% @sales.each do |s| %>
+  <tr>
+    <td><%= s.name %></td>
+    <td><%= s.updated_at.strftime("%B %d, %Y") %></td>
+    <td><%= s.buyer %></td>
+    <td><%= number_to_currency(s.amount, :unit => "$") %></td>
+  </tr>
+  <% end %>
+</table>
+
+<h4>Total Sales: <%= number_to_currency(@sales_total) %></h4>
+
+<h4>Purchases</h4>
+<table>
+  <tr>
+    <th>Product</th>
+    <th>Date Bought</th>
+    <th>Seller</th>
+    <th>Amount</th>
+  </tr>
+  <% @purchases.each do |p| %>
+  <tr>
+    <td><%= p.shoe.name %></td>
+    <td><%= p.created_at.strftime("%B %d, %Y") %></td>
+    <td><%= p.shoe.user.first_name %> <%= p.shoe.user.last_name %></td>
+    <td><%= number_to_currency(p.shoe.amount, :unit => "$") %></td>
+  </tr>
+  <% end %>
+</table>
+
+<h4>Total Purchases: <%= number_to_currency(@purchases_total) %></h4>
